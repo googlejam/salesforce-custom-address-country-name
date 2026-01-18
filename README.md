@@ -21,7 +21,17 @@ This solution provides an invocable Apex action that can be called from a Flow t
 
 ## Prerequisites
 
-### 1. Enable State and Country/Territory Picklists
+### 1. Enable Custom Address Fields (User Interface Setting)
+
+Before you can create custom Address fields on your objects, you must enable this feature:
+
+1. Go to **Setup** → **User Interface** (search "User Interface" in Quick Find)
+2. Scroll down to find **Enable Custom Address Fields**
+3. Check the box and click **Save**
+
+> 💡 **Tip:** This setting is often overlooked! Without it, you won't see "Address" as an available field type when creating new custom fields.
+
+### 2. Enable State and Country/Territory Picklists
 
 State and Country/Territory Picklists must be enabled in your org:
 
@@ -32,7 +42,7 @@ State and Country/Territory Picklists must be enabled in your org:
 
 > ⚠️ **Note:** This is a one-way operation and cannot be undone. Review Salesforce documentation before enabling.
 
-### 2. Create a Custom Address Field
+### 3. Create a Custom Address Field
 
 If you don't already have a custom Address field:
 
@@ -46,7 +56,7 @@ When State/Country Picklists are enabled, your custom address field will automat
 - `YourAddress__StateCode__s` - The ISO state/province code
 - And other address components (Street, City, PostalCode)
 
-### 3. Create a Text Field for Country Name
+### 4. Create a Text Field for Country Name
 
 Create a text field to store the full country name:
 
