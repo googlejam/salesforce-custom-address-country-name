@@ -59,7 +59,7 @@ Create a text field to store the full country name:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/salesforce-custom-address-country-name.git
+git clone https://github.com/googlejam/salesforce-custom-address-country-name.git
 cd salesforce-custom-address-country-name
 
 # Authenticate to your org
