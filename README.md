@@ -94,16 +94,37 @@ sf apex run test -n CountryPicklistUtilTest -o MyOrg -r human
 
 ## Configuration
 
-### Update the Default Field Reference
+### Important: No Code Changes Required for Most Users! 
 
-By default, the utility is configured for Account with `my_address__countrycode__s`. Update this in `CountryPicklistUtil.cls`:
+**Good news:** Since Salesforce's State/Country Picklists are **org-wide** (the same country codes and names exist on all objects), the Flow action and utility work with **any object** and **any custom Address field** without modifying the Apex code.
+
+The default object/field settings in the code are only used for:
+1. Reading the picklist values (which are identical across all Address fields)
+2. Test class validation
+
+**You only need to update the defaults if:**
+- Your org doesn't have the default object/field (causes test failures)
+- You want the code to reflect your specific implementation
+
+### Optional: Update the Default Field Reference
+
+If needed, update the defaults in `CountryPicklistUtil.cls`:
 
 ```apex
 // Default SObject and field for country code lookup
-// Change these for your org
+// These are only used for initial picklist loading and tests
+// The actual lookup works with ANY object's country code field
 private static final String DEFAULT_SOBJECT = 'Account';
 private static final String DEFAULT_COUNTRY_CODE_FIELD = 'your_address_field__countrycode__s';
 ```
+
+### Summary: What's Configurable Where
+
+| Component | Configuration | Where to Configure |
+|-----------|---------------|-------------------|
+| **Flow Action** | Any object, any country code | In Flow Builder - pass the country code from any field |
+| **Backfill Batch** | Fully parameterized | Pass object, source field, target field as parameters |
+| **Utility Class** | Defaults only | Edit `CountryPicklistUtil.cls` (optional) |
 
 ## Creating the Flow
 
