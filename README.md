@@ -89,8 +89,12 @@ sf apex run test -n CountryPicklistUtilTest -o MyOrg -r human
    - `force-app/main/default/classes/CountryPicklistUtil.cls-meta.xml`
    - `force-app/main/default/classes/PopulateCountryNameAction.cls`
    - `force-app/main/default/classes/PopulateCountryNameAction.cls-meta.xml`
+   - `force-app/main/default/classes/BackfillCountryNamesBatch.cls`
+   - `force-app/main/default/classes/BackfillCountryNamesBatch.cls-meta.xml`
    - `force-app/main/default/classes/CountryPicklistUtilTest.cls`
    - `force-app/main/default/classes/CountryPicklistUtilTest.cls-meta.xml`
+   - `force-app/main/default/classes/BackfillCountryNamesBatchTest.cls`
+   - `force-app/main/default/classes/BackfillCountryNamesBatchTest.cls-meta.xml`
 
 ## Configuration
 
