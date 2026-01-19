@@ -1,74 +1,69 @@
 /**
  * Backfill Country Names Script
  * 
- * Use this script to populate full country names for existing Account records
+ * Use this script to populate full country names for existing records
  * that have custom Address fields with CountryCode values.
  * 
  * Run this script in Developer Console: Debug > Open Execute Anonymous Window
- * Run multiple times until "Remaining accounts: 0" is shown
  * 
- * IMPORTANT: The CountryPicklistUtil class must be deployed before running this script.
+ * IMPORTANT: 
+ * 1. The BackfillCountryNamesBatch and CountryPicklistUtil classes must be deployed first
+ * 2. Update the variables below with YOUR object and field names
+ * 
+ * @author Procetra (procetra.com)
  */
 
-System.debug('*** BATCH UPDATE START ***');
+// ============================================================================
+// CONFIGURATION - Update these values for your org
+// ============================================================================
 
-// Get records that need updating - batch of 200
-List<Account> accounts = [
-    SELECT Id,
-           mm_US_Address__CountryCode__s, mm_US_Address_Country__c,
-           mm_Foreign_Address__CountryCode__s, mm_Foreign_Address_Country__c
-    FROM Account 
-    WHERE (mm_US_Address__CountryCode__s != null AND mm_US_Address_Country__c = null)
-       OR (mm_Foreign_Address__CountryCode__s != null AND mm_Foreign_Address_Country__c = null)
-    LIMIT 200
-];
+// The API name of your object (e.g., 'Account', 'Contact', 'My_Custom_Object__c')
+String objectName = 'Account';
 
-System.debug('Found ' + accounts.size() + ' accounts to process');
+// The API name of the country code field from your custom Address field
+// This is the field that stores the 2-letter ISO code (e.g., 'US', 'CA')
+String countryCodeField = 'mm_US_Address__CountryCode__s';
 
-// Update the records
-Integer usUpdated = 0;
-Integer foreignUpdated = 0;
+// The API name of the text field where you want the full country name stored
+String countryNameField = 'mm_US_Address_Country__c';
 
-for (Account acc : accounts) {
-    // Update US Address country name if blank
-    if (acc.mm_US_Address__CountryCode__s != null && acc.mm_US_Address_Country__c == null) {
-        acc.mm_US_Address_Country__c = CountryPicklistUtil.getCountryName(acc.mm_US_Address__CountryCode__s);
-        if (acc.mm_US_Address_Country__c != null) {
-            usUpdated++;
-            System.debug('Updated Account ' + acc.Id + ': ' + acc.mm_US_Address__CountryCode__s + ' => ' + acc.mm_US_Address_Country__c);
-        }
-    }
+// Batch size (number of records to process at a time, max 2000)
+Integer batchSize = 200;
+
+// ============================================================================
+// DO NOT MODIFY BELOW THIS LINE
+// ============================================================================
+
+System.debug('====================================');
+System.debug('Starting Backfill Country Names');
+System.debug('====================================');
+System.debug('Object: ' + objectName);
+System.debug('Country Code Field: ' + countryCodeField);
+System.debug('Country Name Field: ' + countryNameField);
+System.debug('Batch Size: ' + batchSize);
+System.debug('------------------------------------');
+
+try {
+    // Create the batch job
+    BackfillCountryNamesBatch batch = new BackfillCountryNamesBatch(
+        objectName,
+        countryCodeField,
+        countryNameField
+    );
     
-    // Update Foreign Address country name if blank
-    if (acc.mm_Foreign_Address__CountryCode__s != null && acc.mm_Foreign_Address_Country__c == null) {
-        acc.mm_Foreign_Address_Country__c = CountryPicklistUtil.getCountryName(
-            acc.mm_Foreign_Address__CountryCode__s, 
-            'Account', 
-            'mm_foreign_address__countrycode__s'
-        );
-        if (acc.mm_Foreign_Address_Country__c != null) {
-            foreignUpdated++;
-        }
-    }
-}
-
-// Perform the update
-if (!accounts.isEmpty()) {
-    update accounts;
-}
-
-System.debug('Updated ' + usUpdated + ' US addresses and ' + foreignUpdated + ' Foreign addresses');
-
-// Check remaining
-Integer remaining = [
-    SELECT COUNT() FROM Account 
-    WHERE (mm_US_Address__CountryCode__s != null AND mm_US_Address_Country__c = null)
-       OR (mm_Foreign_Address__CountryCode__s != null AND mm_Foreign_Address_Country__c = null)
-];
-
-System.debug('*** Remaining accounts: ' + remaining + ' ***');
-if (remaining > 0) {
-    System.debug('Run this script again to process the next batch');
-} else {
-    System.debug('ALL DONE! All records have been updated.');
+    // Execute the batch
+    Id jobId = Database.executeBatch(batch, batchSize);
+    
+    System.debug('SUCCESS! Batch job started.');
+    System.debug('Job ID: ' + jobId);
+    System.debug('------------------------------------');
+    System.debug('Monitor progress in Setup > Apex Jobs');
+    System.debug('====================================');
+    
+} catch (BackfillCountryNamesBatch.BackfillException e) {
+    System.debug('ERROR: ' + e.getMessage());
+    System.debug('Please check your object and field names.');
+} catch (Exception e) {
+    System.debug('ERROR: ' + e.getMessage());
+    System.debug('Stack Trace: ' + e.getStackTraceString());
 }

@@ -1,17 +1,17 @@
 # Backfill Scripts for Country Names
 
-These scripts help populate full country names for existing Account records after deploying the Country Name Lookup solution.
+These scripts help populate full country names for existing records after deploying the Country Name Lookup solution.
 
 ## Prerequisites
 
 Before running these scripts, ensure:
 1. ✅ `CountryPicklistUtil` class is deployed to your org
 2. ✅ `PopulateCountryNameAction` class is deployed
-3. ✅ Custom fields exist on Account:
-   - `mm_US_Address__CountryCode__s` (from custom Address field)
-   - `mm_US_Address_Country__c` (Text field for full name)
-   - `mm_Foreign_Address__CountryCode__s` (from custom Address field)
-   - `mm_Foreign_Address_Country__c` (Text field for full name)
+3. ✅ `BackfillCountryNamesBatch` class is deployed
+4. ✅ You know your:
+   - **Object API Name** (e.g., `Account`, `Contact`, `My_Custom_Object__c`)
+   - **Country Code Field** (e.g., `My_Address__CountryCode__s`)
+   - **Country Name Field** (e.g., `My_Address_Country__c`)
 
 ## Scripts
 
@@ -20,66 +20,124 @@ Before running these scripts, ensure:
 **Purpose:** Check how many records need updating before you start.
 
 **How to run:**
-1. Open Salesforce Developer Console
-2. Go to **Debug** → **Open Execute Anonymous Window**
-3. Copy/paste the contents of `diagnostic-country-names.apex`
-4. Click **Execute**
-5. Open the log and click **Debug Only** to see results
+1. Open the file and **update the CONFIGURATION section** with your object/field names:
+   ```apex
+   String objectName = 'Account';                              // Your object
+   String countryCodeField = 'My_Address__CountryCode__s';    // Your country code field
+   String countryNameField = 'My_Address_Country__c';          // Your target text field
+   ```
+2. Open Salesforce Developer Console
+3. Go to **Debug** → **Open Execute Anonymous Window**
+4. Copy/paste the updated script
+5. Click **Execute**
+6. Open the log and click **Debug Only** to see results
 
 **Sample Output:**
 ```
-=== US ADDRESS ===
-Total with CountryCode: 2403
-With Country Name:      0
-NEEDING update:         2403
+=== STATISTICS ===
+Total with Country Code: 2403
+With Country Name:       0
+NEEDING update:          2403
 
 === SUMMARY ===
-Total Accounts needing update: 2403
-Estimated batches needed (200 per batch): 13
+Records to update: 2403
+Estimated batch executions (at 200/batch): 13
 ```
 
 ### 2. backfill-country-names.apex
 
-**Purpose:** Update records in batches of 200.
+**Purpose:** Start a batch job to update all records.
 
 **How to run:**
-1. Open Salesforce Developer Console
-2. Go to **Debug** → **Open Execute Anonymous Window**
-3. Copy/paste the contents of `backfill-country-names.apex`
-4. Click **Execute**
-5. **Repeat** until you see `Remaining accounts: 0`
+1. Open the file and **update the CONFIGURATION section**:
+   ```apex
+   String objectName = 'Account';                              // Your object
+   String countryCodeField = 'My_Address__CountryCode__s';    // Your country code field
+   String countryNameField = 'My_Address_Country__c';          // Your target text field
+   Integer batchSize = 200;                                    // Records per batch (max 2000)
+   ```
+2. Open Salesforce Developer Console
+3. Go to **Debug** → **Open Execute Anonymous Window**
+4. Copy/paste the updated script
+5. Click **Execute**
+6. Monitor progress in **Setup** → **Apex Jobs**
 
 **Sample Output:**
 ```
-*** BATCH UPDATE START ***
-Found 200 accounts to process
-Updated Account 001xxx: US => United States
-Updated Account 001xxx: CA => Canada
-...
-Updated 200 US addresses and 0 Foreign addresses
-*** Remaining accounts: 216 ***
-Run this script again to process the next batch
+====================================
+Starting Backfill Country Names
+====================================
+Object: Account
+Country Code Field: My_Address__CountryCode__s
+Country Name Field: My_Address_Country__c
+Batch Size: 200
+------------------------------------
+SUCCESS! Batch job started.
+Job ID: 707xx000000xxxx
+------------------------------------
+Monitor progress in Setup > Apex Jobs
+====================================
 ```
+
+## Alternative: Run Directly in Developer Console
+
+Instead of using the script files, you can run the batch directly:
+
+```apex
+// Single address field
+Database.executeBatch(new BackfillCountryNamesBatch(
+    'Account',                        // Your object
+    'My_Address__CountryCode__s',    // Your country code field
+    'My_Address_Country__c'           // Your target text field
+), 200);
+```
+
+### Multiple Address Fields
+
+Run separate batch jobs for each address field you need to backfill:
+
+```apex
+// First address field
+Database.executeBatch(new BackfillCountryNamesBatch(
+    'Account', 
+    'US_Address__CountryCode__s', 
+    'US_Address_Country__c'
+), 200);
+
+// Second address field
+Database.executeBatch(new BackfillCountryNamesBatch(
+    'Account', 
+    'Foreign_Address__CountryCode__s', 
+    'Foreign_Address_Country__c'
+), 200);
+```
+
+## Monitoring Progress
+
+After starting a batch job:
+
+1. Go to **Setup** → **Apex Jobs**
+2. Find your job by the `BackfillCountryNamesBatch` class name
+3. Watch the **Batches Processed** column
+4. Check debug logs for detailed output
 
 ## Production Deployment Steps
 
-1. **Deploy Apex Classes:**
+1. **Deploy Apex Classes** to production:
    ```bash
    sf project deploy start -d force-app/main/default/classes -o ProductionOrg
    ```
 
 2. **Create Custom Fields** (if not already created):
-   - `mm_US_Address_Country__c` (Text, 255)
-   - `mm_Foreign_Address_Country__c` (Text, 255)
+   - `Your_Address_Country__c` (Text, 255) on your object
 
 3. **Run Diagnostic:**
-   - Execute `diagnostic-country-names.apex`
+   - Update and execute `diagnostic-country-names.apex`
    - Note how many records need updating
 
 4. **Run Backfill:**
-   - Execute `backfill-country-names.apex` repeatedly
-   - Each run processes 200 records
-   - Continue until "Remaining accounts: 0"
+   - Update and execute `backfill-country-names.apex`
+   - Monitor in Setup > Apex Jobs until complete
 
 5. **Activate Flow:**
    - Ensure your Record-Triggered Flow is active
@@ -87,16 +145,24 @@ Run this script again to process the next batch
 
 ## Notes
 
-- **Batch Size:** The scripts process 200 records at a time to stay within Salesforce governor limits
-- **Account Name Field:** These scripts intentionally don't query the Account Name field (which may be read-only in your org)
-- **Error Handling:** If you encounter errors, check that the field API names match your org's configuration
+- **Any Object:** These scripts work with ANY standard or custom object
+- **Any Field:** Just provide the correct API names for your fields
+- **Batch Size:** Default is 200, max is 2000
+- **Multiple Runs:** For large datasets, the batch handles everything automatically
+- **Error Handling:** Failed records are logged but don't stop the batch
 
-## Customizing for Other Fields
+## Troubleshooting
 
-To adapt these scripts for different field names, update the following in both scripts:
-- `mm_US_Address__CountryCode__s` → Your country code field
-- `mm_US_Address_Country__c` → Your country name field
-- `mm_Foreign_Address__CountryCode__s` → Your foreign address country code field
-- `mm_Foreign_Address_Country__c` → Your foreign address country name field
+### "Object does not exist" Error
+- Check the spelling of your object API name
+- For custom objects, include the `__c` suffix
 
-Also update the `CountryPicklistUtil.getCountryName()` call to reference the correct field.
+### "Field does not exist" Error
+- Verify the field API name is correct
+- Country code fields from Address fields end with `__CountryCode__s`
+- Make sure you've created the target text field for country names
+
+### Batch not processing records
+- Check that records actually need updating (country name field is null)
+- Verify the country code field has valid values
+- Check Setup > Apex Jobs for any errors
