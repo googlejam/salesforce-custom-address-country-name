@@ -176,7 +176,80 @@ To use with a different object (e.g., Contact, custom object):
 |------|-------------|
 | `CountryPicklistUtil.cls` | Utility class for country code to name lookup |
 | `PopulateCountryNameAction.cls` | Invocable Apex action for Flow |
-| `CountryPicklistUtilTest.cls` | Test class (21 tests, 100% coverage) |
+| `BackfillCountryNamesBatch.cls` | Batch class to backfill existing records |
+| `CountryPicklistUtilTest.cls` | Test class for utility (21 tests) |
+| `BackfillCountryNamesBatchTest.cls` | Test class for batch (10 tests) |
+
+## Backfilling Existing Records
+
+After deploying the solution, your Flows will handle new/updated records automatically. But what about existing records? Use the included **Batch Apex class** to backfill country names for all existing records.
+
+### Option 1: Run from Developer Console
+
+```apex
+// Backfill country names for Account records
+BackfillCountryNamesBatch batch = new BackfillCountryNamesBatch(
+    'Account',                           // Object API name
+    'mm_US_Address__CountryCode__s',    // Source: Country code field
+    'mm_US_Address_Country__c'           // Target: Country name text field
+);
+Database.executeBatch(batch, 200);
+```
+
+**Monitor the job:**
+- Go to **Setup** → **Apex Jobs** to see progress
+- Check debug logs for detailed results
+
+### Option 2: Run from Flow (Admin-Friendly)
+
+The batch class includes an **Invocable Method** that can be called from Flow:
+
+1. Create a **Screen Flow** or **Autolaunched Flow**
+2. Add an **Action** element
+3. Search for **"Backfill Country Names"**
+4. Provide inputs:
+   - **Object API Name:** e.g., `Account`
+   - **Country Code Field:** e.g., `mm_US_Address__CountryCode__s`
+   - **Country Name Field:** e.g., `mm_US_Address_Country__c`
+   - **Batch Size:** (optional, default 200)
+5. The action returns a Job ID you can use to monitor progress
+
+### Option 3: Schedule the Batch
+
+```apex
+// Schedule to run at midnight on the first of each month
+String cronExpression = '0 0 0 1 * ?';
+System.schedule('Backfill Country Names', cronExpression, 
+    new BackfillCountryNamesBatch('Account', 'mm_US_Address__CountryCode__s', 'mm_US_Address_Country__c'));
+```
+
+### Backfill Multiple Address Fields
+
+Run separate batch jobs for each address field:
+
+```apex
+// US Address
+Database.executeBatch(new BackfillCountryNamesBatch(
+    'Account', 
+    'mm_US_Address__CountryCode__s', 
+    'mm_US_Address_Country__c'
+), 200);
+
+// Foreign Address  
+Database.executeBatch(new BackfillCountryNamesBatch(
+    'Account', 
+    'mm_Foreign_Address__CountryCode__s', 
+    'mm_Foreign_Address_Country__c'
+), 200);
+```
+
+### Batch Class Features
+
+- ✅ **Validates inputs** - Checks object/field existence before running
+- ✅ **Detailed logging** - Shows progress and errors in debug log
+- ✅ **Error handling** - Continues processing even if individual records fail
+- ✅ **Stateful** - Tracks totals across all batches
+- ✅ **Flow-compatible** - Invocable method for admin use
 
 ## How It Works
 
