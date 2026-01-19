@@ -2,7 +2,7 @@
  * @description Test class for CountryPicklistUtil and PopulateCountryNameAction
  *              Tests the Country Mapping custom metadata lookup functionality
  * 
- * @author Generated via Cline
+ * @author Glenn Goodman
  * @date 2026-01-17
  */
 @IsTest

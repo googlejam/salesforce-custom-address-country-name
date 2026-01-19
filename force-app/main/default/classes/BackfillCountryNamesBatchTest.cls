@@ -1,6 +1,6 @@
 /**
  * @description Test class for BackfillCountryNamesBatch
- * @author Procetra (procetra.com)
+ * @author Glenn Goodman
  */
 @isTest
 private class BackfillCountryNamesBatchTest {

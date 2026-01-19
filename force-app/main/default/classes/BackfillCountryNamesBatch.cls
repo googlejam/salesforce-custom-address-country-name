@@ -15,7 +15,7 @@
  * // Or use the static invocable method from Flow:
  * BackfillCountryNamesBatch.startBackfill(inputList);
  * 
- * @author Procetra (procetra.com)
+ * @author Glenn Goodman
  */
 public class BackfillCountryNamesBatch implements Database.Batchable<SObject>, Database.Stateful {
     

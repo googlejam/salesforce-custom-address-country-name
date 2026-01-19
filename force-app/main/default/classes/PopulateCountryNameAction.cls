@@ -7,7 +7,7 @@
  *              custom Address fields, allowing admins to configure new
  *              implementations without code changes.
  * 
- * @author Generated via Cline
+ * @author Glenn Goodman
  * @date 2026-01-17
  */
 public with sharing class PopulateCountryNameAction {

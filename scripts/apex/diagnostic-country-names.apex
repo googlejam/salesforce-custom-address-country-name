@@ -6,7 +6,7 @@
  * 
  * IMPORTANT: Update the variables below with YOUR object and field names
  * 
- * @author Procetra (procetra.com)
+ * @author Glenn Goodman
  */
 
 // ============================================================================

@@ -7,7 +7,7 @@
  *              - State and Country/Territory Picklists must be enabled in Salesforce Setup
  *              - Custom Address field must exist on the object
  * 
- * @author Generated via Cline
+ * @author Glenn Goodman
  * @date 2026-01-17
  */
 public with sharing class CountryPicklistUtil {
