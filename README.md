@@ -317,6 +317,14 @@ Database.executeBatch(new BackfillCountryNamesBatch(
 - Ensure State/Country Picklists are enabled in your org
 - Verify there's at least one custom Address field
 
+## Support This Project
+
+If you find this project helpful and it saves you time, consider buying me a coffee! ☕
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/googlejam)
+
+Your support helps maintain and improve this open source project!
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
