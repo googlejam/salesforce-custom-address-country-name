@@ -248,6 +248,24 @@ System.schedule('Backfill Country Names', cronExpression,
     new BackfillCountryNamesBatch('Account', 'My_Address__CountryCode__s', 'My_Address_Country__c'));
 ```
 
+### Option 4: Use Pre-built Scripts (Easiest)
+
+For convenience, ready-to-use scripts are available in the `scripts/apex/` folder:
+
+| Script | Purpose |
+|--------|---------|
+| `diagnostic-country-names.apex` | Check how many records need updating |
+| `backfill-country-names.apex` | Run the backfill batch job |
+
+**How to use:**
+1. Open the script file
+2. Update the 3 configuration variables at the top with your object/field names
+3. Copy the entire script
+4. Paste into Developer Console → **Debug** → **Open Execute Anonymous Window**
+5. Click **Execute**
+
+See [`scripts/apex/README.md`](scripts/apex/README.md) for detailed instructions.
+
 ### Backfill Multiple Address Fields
 
 Run separate batch jobs for each address field:
