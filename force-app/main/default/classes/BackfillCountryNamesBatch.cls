@@ -7,8 +7,8 @@
  * // Run from Developer Console:
  * BackfillCountryNamesBatch batch = new BackfillCountryNamesBatch(
  *     'Account',
- *     'mm_US_Address__CountryCode__s',
- *     'mm_US_Address_Country__c'
+ *     'My_Address__CountryCode__s',
+ *     'My_Address_Country__c'
  * );
  * Database.executeBatch(batch, 200);
  * 

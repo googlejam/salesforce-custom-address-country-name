@@ -96,7 +96,7 @@ sf apex run test -n CountryPicklistUtilTest -o MyOrg -r human
 
 ### Update the Default Field Reference
 
-By default, the utility is configured for Account with `mm_us_address__countrycode__s`. Update this in `CountryPicklistUtil.cls`:
+By default, the utility is configured for Account with `my_address__countrycode__s`. Update this in `CountryPicklistUtil.cls`:
 
 ```apex
 // Default SObject and field for country code lookup
@@ -190,8 +190,8 @@ After deploying the solution, your Flows will handle new/updated records automat
 // Backfill country names for Account records
 BackfillCountryNamesBatch batch = new BackfillCountryNamesBatch(
     'Account',                           // Object API name
-    'mm_US_Address__CountryCode__s',    // Source: Country code field
-    'mm_US_Address_Country__c'           // Target: Country name text field
+    'My_Address__CountryCode__s',    // Source: Country code field
+    'My_Address_Country__c'           // Target: Country name text field
 );
 Database.executeBatch(batch, 200);
 ```
@@ -209,8 +209,8 @@ The batch class includes an **Invocable Method** that can be called from Flow:
 3. Search for **"Backfill Country Names"**
 4. Provide inputs:
    - **Object API Name:** e.g., `Account`
-   - **Country Code Field:** e.g., `mm_US_Address__CountryCode__s`
-   - **Country Name Field:** e.g., `mm_US_Address_Country__c`
+   - **Country Code Field:** e.g., `My_Address__CountryCode__s`
+   - **Country Name Field:** e.g., `My_Address_Country__c`
    - **Batch Size:** (optional, default 200)
 5. The action returns a Job ID you can use to monitor progress
 
@@ -220,7 +220,7 @@ The batch class includes an **Invocable Method** that can be called from Flow:
 // Schedule to run at midnight on the first of each month
 String cronExpression = '0 0 0 1 * ?';
 System.schedule('Backfill Country Names', cronExpression, 
-    new BackfillCountryNamesBatch('Account', 'mm_US_Address__CountryCode__s', 'mm_US_Address_Country__c'));
+    new BackfillCountryNamesBatch('Account', 'My_Address__CountryCode__s', 'My_Address_Country__c'));
 ```
 
 ### Backfill Multiple Address Fields
@@ -231,15 +231,15 @@ Run separate batch jobs for each address field:
 // US Address
 Database.executeBatch(new BackfillCountryNamesBatch(
     'Account', 
-    'mm_US_Address__CountryCode__s', 
-    'mm_US_Address_Country__c'
+    'My_Address__CountryCode__s', 
+    'My_Address_Country__c'
 ), 200);
 
 // Foreign Address  
 Database.executeBatch(new BackfillCountryNamesBatch(
     'Account', 
-    'mm_Foreign_Address__CountryCode__s', 
-    'mm_Foreign_Address_Country__c'
+    'Other_Address__CountryCode__s', 
+    'Other_Address_Country__c'
 ), 200);
 ```
 

@@ -15,7 +15,7 @@ public with sharing class CountryPicklistUtil {
     // Default SObject and field for country code lookup
     // Uses Account's custom address field - change this for your org
     private static final String DEFAULT_SOBJECT = 'Account';
-    private static final String DEFAULT_COUNTRY_CODE_FIELD = 'mm_us_address__countrycode__s';
+    private static final String DEFAULT_COUNTRY_CODE_FIELD = 'my_address__countrycode__s';
     
     // Static cache for country code to name mapping
     private static Map<String, String> countryCodeToNameMap;
@@ -35,7 +35,7 @@ public with sharing class CountryPicklistUtil {
     /**
      * @description Gets a map of country codes to names from a specific field
      * @param sObjectName The API name of the SObject (e.g., 'Account', 'Contact')
-     * @param countryCodeFieldName The API name of the CountryCode field (e.g., 'mm_us_address__countrycode__s')
+     * @param countryCodeFieldName The API name of the CountryCode field (e.g., 'my_address__countrycode__s')
      * @return Map<String, String> - Map of country code to name
      */
     public static Map<String, String> getCountryCodeToNameMap(String sObjectName, String countryCodeFieldName) {

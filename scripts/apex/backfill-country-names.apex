@@ -22,10 +22,10 @@ String objectName = 'Account';
 
 // The API name of the country code field from your custom Address field
 // This is the field that stores the 2-letter ISO code (e.g., 'US', 'CA')
-String countryCodeField = 'mm_US_Address__CountryCode__s';
+String countryCodeField = 'My_Address__CountryCode__s';
 
 // The API name of the text field where you want the full country name stored
-String countryNameField = 'mm_US_Address_Country__c';
+String countryNameField = 'My_Address_Country__c';
 
 // Batch size (number of records to process at a time, max 2000)
 Integer batchSize = 200;
